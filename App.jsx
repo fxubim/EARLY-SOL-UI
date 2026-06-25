@@ -707,7 +707,7 @@ function useRealFeed(active) {
 
     async function enrichRug() {
       if (!CONFIG.RUGCHECK) return;
-      const list = [...map.current.values()].slice(0, 20);
+      const list = [...map.current.values()].sort((a, b) => (b.detectedAt || 0) - (a.detectedAt || 0)).slice(0, 20);
       let ok = false, bad = false;
       for (const t of list) {
         if (rugCache.current.has(t.address)) { assignDefined(t, rugCache.current.get(t.address)); continue; }
@@ -724,7 +724,7 @@ function useRealFeed(active) {
 
     async function enrichHelius() {
       if (!CONFIG.PROXY_BASE || !CONFIG.HELIUS) return; // Helius runs server-side via the proxy
-      const list = [...map.current.values()].slice(0, 14);
+      const list = [...map.current.values()].sort((a, b) => (b.detectedAt || 0) - (a.detectedAt || 0)).slice(0, 14);
       let ok = false, bad = false, off = false;
       for (const t of list) {
         if (heliusCache.current.has(t.address)) { applyHelius(t, heliusCache.current.get(t.address)); continue; }
@@ -742,7 +742,7 @@ function useRealFeed(active) {
     // deployer track record (slow + changes rarely → fewer tokens, longer interval)
     async function enrichDev() {
       if (!CONFIG.PROXY_BASE || !CONFIG.HELIUS) return;
-      const list = [...map.current.values()].filter((t) => t.devDeployed == null && !devCache.current.has(t.address)).slice(0, 8);
+      const list = [...map.current.values()].filter((t) => t.devDeployed == null && !devCache.current.has(t.address)).sort((a, b) => (b.detectedAt || 0) - (a.detectedAt || 0)).slice(0, 8);
       let ok = false;
       for (const t of list) {
         if (devCache.current.has(t.address)) { if (applyDev(t, devCache.current.get(t.address))) ok = true; continue; }
@@ -759,7 +759,7 @@ function useRealFeed(active) {
     // smart-money: which tracked wallets hold each token (index is server-side, so this is cheap)
     async function enrichSmart() {
       if (!CONFIG.PROXY_BASE || !CONFIG.HELIUS || !CONFIG.SMART) return;
-      const list = [...map.current.values()].slice(0, 16);
+      const list = [...map.current.values()].sort((a, b) => (b.detectedAt || 0) - (a.detectedAt || 0)).slice(0, 16);
       let ok = false;
       for (const t of list) {
         try {
